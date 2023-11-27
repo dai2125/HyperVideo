@@ -1,0 +1,12 @@
+body
+{
+    background-image: url("background.jpg");
+}
+
+div
+{
+    font-family: "Courier", monospace;
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+}

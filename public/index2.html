@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div style="display: flex">
+    <div id="video-container" style="position: relative; flex: 1;">
+        <video id="solar_system" controls width="640" height="360">
+            <source src="solar_system.mp4" type="video/mp4">
+        </video>
+        <button id="sun" style="position: absolute; top: 50px; right: 50px; display: none;"></button>
+        <button id="jupiter" style="position: absolute; top: 50px; right: 50px; display: none;"></button>
+    </div>
+    <div id="wikipedia-container"  style="position: relative; flex: 1;">
+
+<!--        <p1>lOrem ipsum</p1>-->
+
+
+    </div>
+</div>
+
+
+
+<script>
+
+    const jsonFile = 'sun.json';
+
+    fetch('sun.json')
+        .then(response => response.json())
+        .then(data => {
+            const video = document.getElementById("solar_system");
+
+            const pinSun = document.getElementById("sun");
+            // const pinJupiter = document.getElementById("jupiter");
+            let currentIndex = 0;
+
+            const startzeit = 0; // Video startet bei der 10. Sekunde
+
+            video.addEventListener('click', function(event) {
+                const x = event.offsetX;
+                const y = event.offsetY;
+
+                const xPage = event.pageX;
+                const yPage = event.pageY;
+
+                console.log('Koordinaten innerhalb des Elements: ', x, y);
+                console.log('Koordinaten relativ zum Dokument: ', xPage, yPage);
+            });
+
+            // Definiere die Funktion zum Aktualisieren von pinSun
+            function updatePinSun(item) {
+                pinSun.style.height = item.sunHeight;
+                pinSun.style.width = item.sunWidth;
+                pinSun.style.top = item.sunTop;
+                pinSun.style.left = item.sunLeft;
+                pinSun.style.borderRadius = '50%';
+                pinSun.style.display = "block";
+                pinSun.style.border = "2px solid blue";
+                pinSun.style.backgroundColor = "transparent";
+            }
+
+            // Initialisiere pinSun mit dem ersten Item
+            if (data.length > 0) {
+                updatePinSun(data[0]);
+            }
+
+            // Setze ein Intervall, das jede Sekunde ausgeführt wird
+            setInterval(() => {
+                if(!video.paused) {
+
+                    currentIndex = (currentIndex + 1) % data.length; // Gehe zum nächsten Index, fange bei 0 an, wenn das Ende erreicht ist
+                    updatePinSun(data[currentIndex]); // Aktualisiere pinSun mit dem aktuellen Item
+                    // updatePinJupiter(dat[currentIndex]);
+                }
+            }, 15000); // 1000 Millisekunden entsprechen 1 Sekunde
+
+            video.addEventListener('ended', () => {
+                clearInterval(intervalId);
+                pinSun.style.display = "none"; // Verstecke pinSun, wenn das Video beendet ist
+            });
+
+            pinSun.addEventListener('click', function () {
+                const summaryElement = document.getElementById('wikipedia-container');
+
+                const searchTerm = 'Sun';
+
+                // const url = `https://upload.wikimedia.org/wikipedia/commons/a/aa/Sun920607.jpg`;
+                const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(searchTerm)}`;
+
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        summaryElement.textContent = data.extract;
+                    })
+                    .catch(error => {
+                        console.error('Could not load the Wikipedia summary:', error);
+                        summaryElement.textContent = 'Failed to load summary.';
+                    });
+            })
+
+        })
+        .catch(error => console.error("Fehler beim Laden der sun.json: ", error));
+
+    fetch('jupiterNEW.json')
+        .then(response => response.json())
+        .then(data => {
+            const video = document.getElementById("solar_system");
+
+            const pinJupiter = document.getElementById("jupiter");
+            let currentIndex = 0;
+
+            video.play();
+            function updatePinJupiter(item) {
+                pinJupiter.style.height = "20px"; // item.jupiterHeight;
+                pinJupiter.style.width = "20px"; // item.jupiterWidth;
+                pinJupiter.style.top = item.jupiterTop;
+                pinJupiter.style.left = item.jupiterLeft;
+                pinJupiter.style.borderRadius = '100%';
+                pinJupiter.style.display = "block";
+                pinJupiter.style.border = "2px solid brown";
+                pinJupiter.style.backgroundColor = "transparent";
+            }
+
+            if (data.length > 0) {
+                updatePinJupiter(data[0]);
+            }
+
+            setInterval(() => {
+                if(!video.paused) {
+                    currentIndex = (currentIndex + 1) % data.length; // Gehe zum nächsten Index, fange bei 0 an, wenn das Ende erreicht ist
+                    updatePinJupiter(data[currentIndex]);
+
+                    if(currentIndex == dataLength - 1) {
+                        pinJupiter.style.display = 'none';
+                    }
+                }
+            }, 150); // 1000 Millisekunden entsprechen 1 Sekunde
+
+            video.addEventListener('ended', () => {
+                clearInterval(intervalId);
+                pinJupiter.style.display = "none"; // Verstecke pinSun, wenn das Video beendet ist
+            });
+
+            pinJupiter.addEventListener("click", function () {
+                // alert("Damn");
+                const summaryElement = document.getElementById('wikipedia-container');
+
+                // Ersetze 'searchTerm' mit dem Begriff, nach dem du auf Wikipedia suchen möchtest
+                const searchTerm = 'Jupiter';
+
+                const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(searchTerm)}`;
+
+                // Fetch API verwenden, um Daten von Wikipedia zu beziehen
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Setze den Text des Paragraphen auf die Zusammenfassung von Wikipedia
+                        summaryElement.textContent = data.extract;
+                    })
+                    .catch(error => {
+                        console.error('Could not load the Wikipedia summary:', error);
+                        summaryElement.textContent = 'Failed to load summary.';
+                    });
+            });
+
+        })
+        .catch(error => console.error("Fehler beim Laden der sun.json: ", error));
+    ////////////////////////////////////////
+
+
+
+
+</script>
+
+</body>
+</html>
