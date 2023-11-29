@@ -10,3 +10,16 @@ div
     font-weight: bold;
     color: white;
 }
+
+#playButton
+{
+    position: absolute;
+    background-color: black;
+    top: 330px;
+    left: 25px;
+    /*transform: translate(-50%, -50%);*/
+    /*z-index: 10;*/
+    /*width: 20px;*/
+    /*height: 20px;*/
+}
+

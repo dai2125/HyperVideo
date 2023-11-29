@@ -8,17 +8,14 @@
 <body>
 <div style="display: flex">
     <div id="video-container" style="position: relative; flex: 1;">
-        <video id="solar_system" controls width="640" height="360">
+        <video id="solar_system" width="640" height="360">
             <source src="solar_system.mp4" type="video/mp4">
         </video>
+        <button id="playButton"><img src="play.png"></button>
         <button id="sun" style="position: absolute; top: 50px; right: 50px; display: none;"></button>
         <button id="jupiter" style="position: absolute; top: 50px; right: 50px; display: none;"></button>
     </div>
     <div id="wikipedia-container"  style="position: relative; flex: 1;">
-
-<!--        <p1>lOrem ipsum</p1>-->
-
-
     </div>
 </div>
 
@@ -26,12 +23,53 @@
 
 <script>
 
+    function loadWikipediaEntry(searchTerm) {
+        const summaryElement = document.getElementById('wikipedia-container');
+        const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(searchTerm)}`;
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                summaryElement.textContent = data.extract;
+                window.location.hash = searchTerm; // Aktualisiere den URL-Hash
+            })
+            .catch(error => {
+                console.error('Could not load the Wikipedia summary:', error);
+                summaryElement.textContent = 'Failed to load summary.';
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const hash = window.location.hash.substring(1); // Entferne das '#' aus dem Hash
+        if (hash) {
+            loadWikipediaEntry(hash);
+        }
+    });
+
     const jsonFile = 'sun.json';
+    let sunData = [];
+    let jupiterData = [];
+
+    document.getElementById('playButton').addEventListener('click', function () {
+        var video = document.getElementById('solar_system');
+        if (video.paused) {
+            video.play();
+        } else {
+            video.pause();
+        }
+    });
+
 
     fetch('sun.json')
         .then(response => response.json())
         .then(data => {
             const video = document.getElementById("solar_system");
+            sunData = data;
 
             const pinSun = document.getElementById("sun");
             // const pinJupiter = document.getElementById("jupiter");
@@ -49,6 +87,8 @@
                 console.log('Koordinaten innerhalb des Elements: ', x, y);
                 console.log('Koordinaten relativ zum Dokument: ', xPage, yPage);
             });
+
+            // video.play();
 
             // Definiere die Funktion zum Aktualisieren von pinSun
             function updatePinSun(item) {
@@ -78,11 +118,14 @@
             }, 15000); // 1000 Millisekunden entsprechen 1 Sekunde
 
             video.addEventListener('ended', () => {
-                clearInterval(intervalId);
-                pinSun.style.display = "none"; // Verstecke pinSun, wenn das Video beendet ist
+                // clearInterval(intervalId);
+                // document.location.reload();
+                // resetVideoAndJson();
+                // pinSun.style.display = "none"; // Verstecke pinSun, wenn das Video beendet ist
             });
 
             pinSun.addEventListener('click', function () {
+                loadWikipediaEntry('Sun');
                 const summaryElement = document.getElementById('wikipedia-container');
 
                 const searchTerm = 'Sun';
@@ -145,16 +188,20 @@
             }, 150); // 1000 Millisekunden entsprechen 1 Sekunde
 
             video.addEventListener('ended', () => {
-                clearInterval(intervalId);
-                pinJupiter.style.display = "none"; // Verstecke pinSun, wenn das Video beendet ist
+                // clearInterval(intervalId);
+                // resetVideoAndJson();
+                document.location.reload();
+                // pinJupiter.style.display = "none"; // Verstecke pinSun, wenn das Video beendet ist
             });
 
             pinJupiter.addEventListener("click", function () {
+                loadWikipediaEntry('Saturn');
+
                 // alert("Damn");
                 const summaryElement = document.getElementById('wikipedia-container');
 
                 // Ersetze 'searchTerm' mit dem Begriff, nach dem du auf Wikipedia suchen möchtest
-                const searchTerm = 'Jupiter';
+                const searchTerm = 'Saturn';
 
                 const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(searchTerm)}`;
 
@@ -179,7 +226,23 @@
         })
         .catch(error => console.error("Fehler beim Laden der sun.json: ", error));
     ////////////////////////////////////////
+    function resetVideoAndJson() {
+        const video = document.getElementById("solar_system");
+        video.currentTime = 0; // Setze die aktuelle Zeit des Videos auf 0
+        // Setze die currentIndex für Sonne und Jupiter zurück
 
+        currentIndexSun = 0;
+        currentIndexJupiter = 0;
+        // Aktualisiere die Pins mit dem ersten Item aus den JSON-Dateien
+
+        video.play(); // Starte das Video
+        if (sunData.length > 0) {
+            updatePinSun(sunData[0]);
+        }
+        if (jupiterData.length > 0) {
+            updatePinJupiter(jupiterData[0]);
+        }
+    }
 
 
 
