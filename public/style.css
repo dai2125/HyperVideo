@@ -22,4 +22,10 @@ div
     /*width: 20px;*/
     /*height: 20px;*/
 }
-
+#playButtonAquarium {
+    position: absolute;
+    background-color: black;
+    top: 610px; /* Hier wird der zweite Button unterhalb des ersten Videos positioniert */
+    left: 25px;
+    /* Weitere Stile hier */
+}

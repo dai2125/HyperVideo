@@ -11,7 +11,18 @@
         <video id="solar_system" width="640" height="360">
             <source src="solar_system.mp4" type="video/mp4">
         </video>
+        <video id="Aquarium" width="640" height="360">
+            <source src="Aquarium.mp4" type="video/mp4">
+        </video>
+
+        <select id="videoSelector">
+            <option value="solar_system">Solar System</option>
+            <option value="Aquarium">Aquarium</option>
+        </select>
+
         <button id="playButton"><img src="play.png"></button>
+        <button id="playButtonAquarium"><img src="play.png"></button>
+
         <button id="sun" style="position: absolute; top: 50px; right: 50px; display: none;"></button>
         <button id="jupiter" style="position: absolute; top: 50px; right: 50px; display: none;"></button>
     </div>
@@ -62,7 +73,18 @@
         } else {
             video.pause();
         }
+
     });
+    document.getElementById('playButtonAquarium').addEventListener('click', function () {
+        var video = document.getElementById('Aquarium');
+        if (video.paused) {
+            video.play();
+        } else {
+            video.pause();
+        }
+
+    });
+
 
 
     fetch('sun.json')
